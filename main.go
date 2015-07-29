@@ -13,9 +13,15 @@ func main() {
 }
 
 func processChanges(changes control.Changes) {
-	dsc := changes.GetDSC()
-	log.Printf("%s\n", dsc)
-	err := changes.Move("/home/tag/tmp/x/")
+	dsc, err := changes.GetDSC()
+	if err != nil {
+		log.Printf("%s\n", err)
+		return
+	}
+
+	log.Printf("%s\n", dsc.Filename)
+
+	err = changes.Move("/home/tag/tmp/x/")
 	if err != nil {
 		log.Printf("%s\n", err)
 	}
