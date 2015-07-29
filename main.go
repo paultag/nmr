@@ -1,9 +1,7 @@
 package main
 
 import (
-	"bufio"
 	"log"
-	"os"
 	"strings"
 
 	"golang.org/x/exp/inotify"
@@ -12,6 +10,12 @@ import (
 
 func main() {
 	watchDirectory(".")
+}
+
+func processChanges(changes control.Changes) {
+	dsc := changes.GetDSC()
+	log.Printf("%s\n", dsc)
+	changes.Remove()
 }
 
 func watchDirectory(path string) error {
@@ -26,23 +30,17 @@ func watchDirectory(path string) error {
 	}
 
 	for ev := range watcher.Event {
-		if ev.Mask != 0x08 { // IN_CLOSE_WRITE
+		if ev.Mask != 0x08 || !strings.HasSuffix(ev.Name, ".changes") {
+			// 0x08 -> IN_CLOSE_WRITE
+			// and wait for the .changes file
 			continue
 		}
-		if !strings.HasSuffix(ev.Name, ".changes") {
-			continue
-		}
-		f, err := os.Open(ev.Name)
+		para, err := control.ParseChangesFilepath(ev.Name)
 		if err != nil {
 			log.Printf("%s\n", err)
 			continue
 		}
-		para, err := control.ParseChanges(bufio.NewReader(f))
-		if err != nil {
-			log.Printf("%s\n", err)
-			continue
-		}
-		log.Printf("%s\n", para.Distribution)
+		go processChanges(*para)
 	}
 
 	return nil
