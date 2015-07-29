@@ -15,7 +15,10 @@ func main() {
 func processChanges(changes control.Changes) {
 	dsc := changes.GetDSC()
 	log.Printf("%s\n", dsc)
-	changes.Remove()
+	err := changes.Move("/home/tag/tmp/x/")
+	if err != nil {
+		log.Printf("%s\n", err)
+	}
 }
 
 func watchDirectory(path string) error {
