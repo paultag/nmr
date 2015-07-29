@@ -35,7 +35,7 @@ func watchDirectory(path string) error {
 			// and wait for the .changes file
 			continue
 		}
-		para, err := control.ParseChangesFilepath(ev.Name)
+		para, err := control.ParseChangesFile(ev.Name)
 		if err != nil {
 			log.Printf("%s\n", err)
 			continue
