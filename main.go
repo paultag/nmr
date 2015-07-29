@@ -37,12 +37,12 @@ func watchDirectory(path string) error {
 			log.Printf("%s\n", err)
 			continue
 		}
-		para, err := control.ParseParagraph(bufio.NewReader(f))
+		para, err := control.ParseChanges(bufio.NewReader(f))
 		if err != nil {
 			log.Printf("%s\n", err)
 			continue
 		}
-		log.Printf("Upload for: %s\n", para.Values["Distribution"])
+		log.Printf("%s\n", para.Distribution)
 	}
 
 	return nil
