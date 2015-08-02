@@ -8,11 +8,11 @@ import (
 
 func main() {
 	err := helpers.MergeLogChangesFromDSC(
-		"dput-ng_1.9_all.changes",
 		os.Args[1],
-		"all",
-		"unstable",
 		os.Args[2],
+		os.Args[3],
+		os.Args[4],
+		os.Args[5],
 	)
 	if err != nil {
 		panic(err)
