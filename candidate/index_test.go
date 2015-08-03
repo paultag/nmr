@@ -1,12 +1,10 @@
 package candidate_test
 
 import (
-	"bufio"
 	"log"
 	"strings"
 	"testing"
 
-	"pault.ag/go/debian/control"
 	"pault.ag/go/debian/dependency"
 	"pault.ag/go/nmr/candidate"
 )
@@ -99,13 +97,11 @@ func assert(t *testing.T, expr bool) {
  */
 
 func TestResolverBasics(t *testing.T) {
-	reader := bufio.NewReader(strings.NewReader(testBinaryIndex))
-	index, err := control.ParseBinaryIndex(reader)
+	candidates, err := candidate.ReadCanidatesFromBinaryIndex(
+		strings.NewReader(testBinaryIndex),
+	)
 	isok(t, err)
-	assert(t, len(index) == 3)
-
-	candidates := candidate.NewCanidates(index)
-	assert(t, len(candidates) == 3)
+	assert(t, len(*candidates) == 3)
 
 	dep, err := dependency.Parse("baz")
 	isok(t, err)
@@ -119,12 +115,6 @@ func TestResolverBasics(t *testing.T) {
 }
 
 func TestResolverVersion(t *testing.T) {
-	// reader := bufio.NewReader(strings.NewReader(testBinaryIndex))
-	// index, err := control.ParseBinaryIndex(reader)
-	// isok(t, err)
-	// assert(t, len(index) == 3)
-	// candidates := candidate.NewCanidates(index)
-
 	candidates, err := candidate.ReadCanidatesFromBinaryIndex(
 		strings.NewReader(testBinaryIndex),
 	)
