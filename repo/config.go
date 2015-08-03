@@ -34,13 +34,19 @@ type DistConfig struct {
 
 func (n NMRConfig) LoadIndex(dist string) (*candidate.Canidates, error) {
 	can := candidate.Canidates{}
+	dists, err := LoadDistributions(n.Basedir)
+	if err != nil {
+		return nil, err
+	}
+
+	repoDistConfig, err := dists.GetDistConfig(dist)
 
 	d, err := n.GetDistConfig(dist)
 	if err != nil {
 		return nil, err
 	}
 
-	for _, arch := range d.Arches {
+	for _, arch := range repoDistConfig.Architectures {
 		err := archive.AppendBinaryIndex(
 			&can,
 			n.Global.PublicArchiveRoot,
@@ -53,7 +59,7 @@ func (n NMRConfig) LoadIndex(dist string) (*candidate.Canidates, error) {
 		}
 	}
 
-	for _, arch := range d.UpstreamArches {
+	for _, arch := range repoDistConfig.Architectures {
 		err := archive.AppendBinaryIndex(
 			&can,
 			d.Upstream.Root,
@@ -69,6 +75,8 @@ func (n NMRConfig) LoadIndex(dist string) (*candidate.Canidates, error) {
 }
 
 type NMRConfig struct {
+	Basedir string
+
 	Global GlobalConfig
 	Blocks []DistConfig
 }
@@ -85,7 +93,9 @@ func (nmr NMRConfig) GetDistConfig(name string) (*DistConfig, error) {
 }
 
 func LoadConfig(basedir string) (*NMRConfig, error) {
-	ret := NMRConfig{}
+	ret := NMRConfig{
+		Basedir: basedir,
+	}
 
 	file, err := os.Open(basedir + "/conf/nmr")
 	if err != nil {
