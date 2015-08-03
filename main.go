@@ -9,6 +9,10 @@ import (
 )
 
 func main() {
+	c, err := repo.LoadConfig("/home/tag/tmp/repo")
+	fmt.Printf("%s %s\n", c, err)
+	return
+
 	cans, err := archive.GetBinaryIndex(
 		"http://http.debian.net/debian",
 		"unstable",
@@ -32,15 +36,14 @@ func main() {
 
 	fmt.Printf("%s\n", (*cans)["hairycandy-serving-suggestions"])
 	fmt.Printf("%s\n", (*cans)["fluxbox"])
-	return
 
-	repo := reprepro.NewRepo("/home/tag/tmp/repo")
-	needsBuild, err := repo.BuildNeeding("unstable", "any")
+	rRepo := reprepro.NewRepo("/home/tag/tmp/repo")
+	needsBuild, err := rRepo.BuildNeeding("unstable", "any")
 	if err != nil {
 		panic(err)
 	}
 
-	for _, status := range build.ComputeBuildStatus(*repo, *cans, needsBuild) {
+	for _, status := range repo.ComputeBuildStatus(*rRepo, *cans, needsBuild) {
 		fmt.Printf("%s - %s (%s)\n", status.Package.Location, status.Buildable, status.Why)
 	}
 }
