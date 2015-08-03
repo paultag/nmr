@@ -10,6 +10,7 @@ import (
 type BuildStatus struct {
 	Package   reprepro.BuildNeedingPackage
 	Buildable bool
+	Why       string
 }
 
 func ComputeBuildStatus(
@@ -22,22 +23,21 @@ func ComputeBuildStatus(
 	for _, pkg := range packages {
 		dsc, err := control.ParseDscFile(repo.Basedir + "/" + pkg.Location)
 		if err != nil {
-			panic("OMGWTFALSKJFALSKJ")
 			continue
 		}
 
 		arch, err := dependency.ParseArch(pkg.Arch)
 		if err != nil {
-			panic("OMGWTFALSKJFALSKJ")
+			/// XXX: ERROR OUT
 			continue
 		}
 
+		buildable, why := index.ExplainSatisfiesBuildDepends(*arch, dsc.BuildDepends)
+
 		ret = append(ret, BuildStatus{
-			Package: pkg,
-			Buildable: index.SatisfiesBuildDepends(
-				*arch,
-				dsc.BuildDepends,
-			),
+			Package:   pkg,
+			Buildable: buildable,
+			Why:       why,
 		})
 	}
 

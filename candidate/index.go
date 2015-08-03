@@ -2,6 +2,7 @@ package candidate
 
 import (
 	"bufio"
+	"fmt"
 	"io"
 
 	"pault.ag/go/debian/control"
@@ -29,13 +30,18 @@ func ReadFromBinaryIndex(in io.Reader) (*Canidates, error) {
 	return &can, nil
 }
 
-func (can Canidates) SatisfiesBuildDepends(arch dependency.Arch, depends dependency.Dependency) bool {
+func (can Canidates) ExplainSatisfiesBuildDepends(arch dependency.Arch, depends dependency.Dependency) (bool, string) {
 	for _, possi := range depends.GetPossibilities(arch) {
 		if !can.Satisfies(possi) {
-			return false
+			return false, fmt.Sprintf("Possi %s can't be satisfied.", possi.Name)
 		}
 	}
-	return true
+	return true, "All relations are a go"
+}
+
+func (can Canidates) SatisfiesBuildDepends(arch dependency.Arch, depends dependency.Dependency) bool {
+	ret, _ := can.ExplainSatisfiesBuildDepends(arch, depends)
+	return ret
 }
 
 func (can Canidates) Satisfies(possi dependency.Possibility) bool {

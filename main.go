@@ -26,6 +26,6 @@ func main() {
 	}
 
 	for _, status := range build.ComputeBuildStatus(*repo, *cans, needsBuild) {
-		fmt.Printf("%s - %s\n", status.Package.Location, status.Buildable)
+		fmt.Printf("%s - %s (%s)\n", status.Package.Location, status.Buildable, status.Why)
 	}
 }
