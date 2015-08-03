@@ -19,6 +19,21 @@ func main() {
 		panic(err)
 	}
 
+	err = archive.AppendBinaryIndex(
+		cans,
+		"https://pault.ag/debian",
+		"wicked",
+		"main",
+		"amd64",
+	)
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Printf("%s\n", (*cans)["hairycandy-serving-suggestions"])
+	fmt.Printf("%s\n", (*cans)["fluxbox"])
+	return
+
 	repo := reprepro.NewRepo("/home/tag/tmp/repo")
 	needsBuild, err := repo.BuildNeeding("unstable", "any")
 	if err != nil {
