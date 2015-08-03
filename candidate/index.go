@@ -6,6 +6,8 @@ import (
 	"pault.ag/go/debian/version"
 )
 
+type Canidates map[string][]control.BinaryIndex
+
 func NewCanidates(index []control.BinaryIndex) Canidates {
 	ret := Canidates{}
 	for _, entry := range index {
@@ -14,9 +16,11 @@ func NewCanidates(index []control.BinaryIndex) Canidates {
 	return ret
 }
 
-type Canidates map[string][]control.BinaryIndex
-
 func (can Canidates) Satisfies(possi dependency.Possibility) bool {
+	///
+	///  XXX: DON'T IGNORE ARCHES
+	///
+
 	entries, ok := can[possi.Name]
 	if !ok { // no known entries in the Index
 		return false
