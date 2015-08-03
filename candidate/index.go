@@ -66,13 +66,27 @@ func (can Canidates) Satisfies(arch dependency.Arch, possi dependency.Possibilit
 }
 
 func (can Canidates) ExplainSatisfies(arch dependency.Arch, possi dependency.Possibility) (bool, string) {
-	///
-	///  XXX: DON'T IGNORE ARCHES
-	///
-
 	entries, ok := can[possi.Name]
 	if !ok { // no known entries in the Index
 		return false, fmt.Sprintf("Totally unknown package: %s", possi.Name)
+	}
+
+	if possi.Arch != nil {
+		satisfied := false
+		for _, installable := range entries {
+			if installable.Architecture.Is(possi.Arch) {
+				satisfied = true
+				break
+			}
+		}
+		if !satisfied {
+			return false, fmt.Sprintf(
+				"Relation depends on multiarch arch %s-%s-%s. Not found",
+				possi.Arch.ABI,
+				possi.Arch.OS,
+				possi.Arch.CPU,
+			)
+		}
 	}
 
 	if possi.Version == nil {
