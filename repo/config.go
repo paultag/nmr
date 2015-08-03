@@ -28,11 +28,31 @@ type DistConfig struct {
 	Names          []string
 	Upstream       UpstreamLocation
 	UpstreamArches []string
+	Arches         []string
 	Schroot        string
 }
 
-func (d DistConfig) LoadIndex() (*candidate.Canidates, error) {
+func (n NMRConfig) LoadIndex(dist string) (*candidate.Canidates, error) {
 	can := candidate.Canidates{}
+
+	d, err := n.GetDistConfig(dist)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, arch := range d.Arches {
+		err := archive.AppendBinaryIndex(
+			&can,
+			n.Global.PublicArchiveRoot,
+			dist,
+			"main",
+			arch,
+		)
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	for _, arch := range d.UpstreamArches {
 		err := archive.AppendBinaryIndex(
 			&can,
@@ -94,6 +114,7 @@ func LoadConfig(basedir string) (*NMRConfig, error) {
 		ret.Blocks = append(ret.Blocks, DistConfig{
 			Names:          strings.Split(para.Values["Name"], " "),
 			UpstreamArches: strings.Split(para.Values["UpstreamArches"], " "),
+			Arches:         strings.Split(para.Values["Arches"], " "),
 			Upstream: UpstreamLocation{
 				Root: upstream[0],
 				Dist: upstream[1], // FIXME
