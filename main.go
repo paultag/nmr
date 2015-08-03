@@ -9,8 +9,9 @@ import (
 )
 
 func main() {
-	c, err := repo.LoadConfig("/home/tag/tmp/repo")
-	fmt.Printf("%s %s\n", c, err)
+	c, _ := repo.LoadConfig("/home/tag/tmp/repo")
+	d, _ := c.GetDistConfig("sid")
+	fmt.Printf("%s\n", d)
 	return
 
 	cans, err := archive.GetBinaryIndex(

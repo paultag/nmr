@@ -2,6 +2,7 @@ package repo
 
 import (
 	"bufio"
+	"fmt"
 	"os"
 	"strings"
 
@@ -30,6 +31,17 @@ type DistConfig struct {
 type NMRConfig struct {
 	Global GlobalConfig
 	Blocks []DistConfig
+}
+
+func (nmr NMRConfig) GetDistConfig(name string) (*DistConfig, error) {
+	for _, block := range nmr.Blocks {
+		for _, dname := range block.Names {
+			if dname == name {
+				return &block, nil
+			}
+		}
+	}
+	return nil, fmt.Errorf("No such name: %s", name)
 }
 
 func LoadConfig(basedir string) (*NMRConfig, error) {
