@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"pault.ag/go/nmr/archive"
-	"pault.ag/go/nmr/build"
+	"pault.ag/go/nmr/repo"
 	"pault.ag/go/reprepro"
 )
 

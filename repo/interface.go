@@ -1,4 +1,4 @@
-package build
+package repo
 
 import (
 	"pault.ag/go/debian/control"
