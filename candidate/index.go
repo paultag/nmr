@@ -29,6 +29,15 @@ func ReadFromBinaryIndex(in io.Reader) (*Canidates, error) {
 	return &can, nil
 }
 
+func (can Canidates) SatisfiesBuildDepends(arch dependency.Arch, depends dependency.Dependency) bool {
+	for _, possi := range depends.GetPossibilities(arch) {
+		if !can.Satisfies(possi) {
+			return false
+		}
+	}
+	return true
+}
+
 func (can Canidates) Satisfies(possi dependency.Possibility) bool {
 	///
 	///  XXX: DON'T IGNORE ARCHES

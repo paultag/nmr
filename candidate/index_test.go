@@ -172,4 +172,23 @@ func TestResolverVersion(t *testing.T) {
 	assert(t, candidates.Satisfies(possi) == true)
 }
 
+func TestResolverDependsVersion(t *testing.T) {
+	candidates, err := candidate.ReadFromBinaryIndex(
+		strings.NewReader(testBinaryIndex),
+	)
+	isok(t, err)
+	assert(t, len(*candidates) == 3)
+
+	arch, err := dependency.ParseArch("amd64")
+	isok(t, err)
+
+	dep, err := dependency.Parse("android-tools-fsutils (>= 1.0)")
+	isok(t, err)
+	assert(t, candidates.SatisfiesBuildDepends(*arch, *dep) == true)
+
+	dep, err = dependency.Parse("android-tools-fsutils (>= 1.0), quix")
+	isok(t, err)
+	assert(t, candidates.SatisfiesBuildDepends(*arch, *dep) == false)
+}
+
 // vim: foldmethod=marker
