@@ -11,7 +11,8 @@ import (
 func main() {
 	c, _ := repo.LoadConfig("/home/tag/tmp/repo")
 	d, _ := c.GetDistConfig("sid")
-	fmt.Printf("%s\n", d)
+	i, _ := d.LoadIndex()
+	fmt.Printf("%s\n", i)
 	return
 
 	cans, err := archive.GetBinaryIndex(

@@ -7,6 +7,8 @@ import (
 	"strings"
 
 	"pault.ag/go/debian/control"
+	"pault.ag/go/nmr/archive"
+	"pault.ag/go/nmr/candidate"
 )
 
 type GlobalConfig struct {
@@ -23,9 +25,27 @@ type UpstreamLocation struct {
 type DistConfig struct {
 	control.Paragraph
 
-	Names    []string
-	Upstream UpstreamLocation
-	Schroot  string
+	Names          []string
+	Upstream       UpstreamLocation
+	UpstreamArches []string
+	Schroot        string
+}
+
+func (d DistConfig) LoadIndex() (*candidate.Canidates, error) {
+	can := candidate.Canidates{}
+	for _, arch := range d.UpstreamArches {
+		err := archive.AppendBinaryIndex(
+			&can,
+			d.Upstream.Root,
+			d.Upstream.Dist,
+			"main",
+			arch,
+		)
+		if err != nil {
+			return nil, err
+		}
+	}
+	return &can, nil
 }
 
 type NMRConfig struct {
@@ -72,7 +92,8 @@ func LoadConfig(basedir string) (*NMRConfig, error) {
 		upstream := strings.Split(para.Values["Upstream"], " ")
 
 		ret.Blocks = append(ret.Blocks, DistConfig{
-			Names: strings.Split(para.Values["Name"], " "),
+			Names:          strings.Split(para.Values["Name"], " "),
+			UpstreamArches: strings.Split(para.Values["UpstreamArches"], " "),
 			Upstream: UpstreamLocation{
 				Root: upstream[0],
 				Dist: upstream[1], // FIXME
