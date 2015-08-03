@@ -12,11 +12,25 @@ import (
 
 type Canidates map[string][]control.BinaryIndex
 
+func (can *Canidates) AppendBinaryIndexReader(in io.Reader) error {
+	reader := bufio.NewReader(in)
+	index, err := control.ParseBinaryIndex(reader)
+	if err != nil {
+		return err
+	}
+	can.AppendBinaryIndex(index)
+	return nil
+}
+
+func (can *Canidates) AppendBinaryIndex(index []control.BinaryIndex) {
+	for _, entry := range index {
+		(*can)[entry.Package] = append((*can)[entry.Package], entry)
+	}
+}
+
 func NewCanidates(index []control.BinaryIndex) Canidates {
 	ret := Canidates{}
-	for _, entry := range index {
-		ret[entry.Package] = append(ret[entry.Package], entry)
-	}
+	ret.AppendBinaryIndex(index)
 	return ret
 }
 
