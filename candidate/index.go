@@ -46,8 +46,9 @@ func ReadFromBinaryIndex(in io.Reader) (*Canidates, error) {
 
 func (can Canidates) ExplainSatisfiesBuildDepends(arch dependency.Arch, depends dependency.Dependency) (bool, string) {
 	for _, possi := range depends.GetPossibilities(arch) {
-		if !can.Satisfies(possi) {
-			return false, fmt.Sprintf("Possi %s can't be satisfied.", possi.Name)
+		can, why := can.ExplainSatisfies(possi)
+		if !can {
+			return false, fmt.Sprintf("Possi %s can't be satisfied - %s", possi.Name, why)
 		}
 	}
 	return true, "All relations are a go"
@@ -59,17 +60,22 @@ func (can Canidates) SatisfiesBuildDepends(arch dependency.Arch, depends depende
 }
 
 func (can Canidates) Satisfies(possi dependency.Possibility) bool {
+	ret, _ := can.ExplainSatisfies(possi)
+	return ret
+}
+
+func (can Canidates) ExplainSatisfies(possi dependency.Possibility) (bool, string) {
 	///
 	///  XXX: DON'T IGNORE ARCHES
 	///
 
 	entries, ok := can[possi.Name]
 	if !ok { // no known entries in the Index
-		return false
+		return false, fmt.Sprintf("Totally unknown package: %s", possi.Name)
 	}
 
 	if possi.Version == nil {
-		return true
+		return true, "Relation exists, no version constraint"
 	}
 
 	// OK, so we have to play with versions now.
@@ -79,21 +85,28 @@ func (can Canidates) Satisfies(possi dependency.Possibility) bool {
 	for _, installable := range entries {
 		q := version.Compare(installable.Version, relatioNumber)
 
+		explainMessage := fmt.Sprintf(
+			"%s %%s %s (%s)",
+			possi.Name,
+			vr.Number,
+			installable.Version,
+		)
+
 		switch vr.Operator {
 		case ">=":
-			return q >= 0
+			return q >= 0, fmt.Sprintf(explainMessage, ">=")
 		case "<=":
-			return q <= 0
+			return q <= 0, fmt.Sprintf(explainMessage, "<=")
 		case ">>":
-			return q > 0
+			return q > 0, fmt.Sprintf(explainMessage, ">>")
 		case "<<":
-			return q < 0
+			return q < 0, fmt.Sprintf(explainMessage, "<<")
 		case "=":
-			return q == 0
+			return q == 0, fmt.Sprintf(explainMessage, "=")
 		default:
-			return false // XXX: WHAT THE SHIT
+			return false, "Unknown operator D:" // XXX: WHAT THE SHIT
 		}
 	}
 
-	return false
+	return false, "Unkown state"
 }
