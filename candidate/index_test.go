@@ -119,13 +119,17 @@ func TestResolverBasics(t *testing.T) {
 }
 
 func TestResolverVersion(t *testing.T) {
-	reader := bufio.NewReader(strings.NewReader(testBinaryIndex))
-	index, err := control.ParseBinaryIndex(reader)
-	isok(t, err)
-	assert(t, len(index) == 3)
+	// reader := bufio.NewReader(strings.NewReader(testBinaryIndex))
+	// index, err := control.ParseBinaryIndex(reader)
+	// isok(t, err)
+	// assert(t, len(index) == 3)
+	// candidates := candidate.NewCanidates(index)
 
-	candidates := candidate.NewCanidates(index)
-	assert(t, len(candidates) == 3)
+	candidates, err := candidate.ReadCanidatesFromBinaryIndex(
+		strings.NewReader(testBinaryIndex),
+	)
+	isok(t, err)
+	assert(t, len(*candidates) == 3)
 
 	dep, err := dependency.Parse("android-tools-fsutils (>= 1.0)")
 	isok(t, err)

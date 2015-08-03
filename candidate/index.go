@@ -1,6 +1,9 @@
 package candidate
 
 import (
+	"bufio"
+	"io"
+
 	"pault.ag/go/debian/control"
 	"pault.ag/go/debian/dependency"
 	"pault.ag/go/debian/version"
@@ -14,6 +17,16 @@ func NewCanidates(index []control.BinaryIndex) Canidates {
 		ret[entry.Package] = append(ret[entry.Package], entry)
 	}
 	return ret
+}
+
+func ReadCanidatesFromBinaryIndex(in io.Reader) (*Canidates, error) {
+	reader := bufio.NewReader(in)
+	index, err := control.ParseBinaryIndex(reader)
+	if err != nil {
+		return nil, err
+	}
+	can := NewCanidates(index)
+	return &can, nil
 }
 
 func (can Canidates) Satisfies(possi dependency.Possibility) bool {
