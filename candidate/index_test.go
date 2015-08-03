@@ -97,7 +97,7 @@ func assert(t *testing.T, expr bool) {
  */
 
 func TestResolverBasics(t *testing.T) {
-	candidates, err := candidate.ReadCanidatesFromBinaryIndex(
+	candidates, err := candidate.ReadFromBinaryIndex(
 		strings.NewReader(testBinaryIndex),
 	)
 	isok(t, err)
@@ -115,7 +115,7 @@ func TestResolverBasics(t *testing.T) {
 }
 
 func TestResolverVersion(t *testing.T) {
-	candidates, err := candidate.ReadCanidatesFromBinaryIndex(
+	candidates, err := candidate.ReadFromBinaryIndex(
 		strings.NewReader(testBinaryIndex),
 	)
 	isok(t, err)

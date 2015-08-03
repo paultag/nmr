@@ -19,7 +19,7 @@ func NewCanidates(index []control.BinaryIndex) Canidates {
 	return ret
 }
 
-func ReadCanidatesFromBinaryIndex(in io.Reader) (*Canidates, error) {
+func ReadFromBinaryIndex(in io.Reader) (*Canidates, error) {
 	reader := bufio.NewReader(in)
 	index, err := control.ParseBinaryIndex(reader)
 	if err != nil {
