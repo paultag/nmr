@@ -47,7 +47,7 @@ func ReadFromBinaryIndex(in io.Reader) (*Canidates, error) {
 
 func (can Canidates) ExplainSatisfiesBuildDepends(arch dependency.Arch, depends dependency.Dependency) (bool, string) {
 	for _, possi := range depends.GetPossibilities(arch) {
-		can, why := can.ExplainSatisfies(possi)
+		can, why := can.ExplainSatisfies(arch, possi)
 		if !can {
 			return false, fmt.Sprintf("Possi %s can't be satisfied - %s", possi.Name, why)
 		}
@@ -60,12 +60,12 @@ func (can Canidates) SatisfiesBuildDepends(arch dependency.Arch, depends depende
 	return ret
 }
 
-func (can Canidates) Satisfies(possi dependency.Possibility) bool {
-	ret, _ := can.ExplainSatisfies(possi)
+func (can Canidates) Satisfies(arch dependency.Arch, possi dependency.Possibility) bool {
+	ret, _ := can.ExplainSatisfies(arch, possi)
 	return ret
 }
 
-func (can Canidates) ExplainSatisfies(possi dependency.Possibility) (bool, string) {
+func (can Canidates) ExplainSatisfies(arch dependency.Arch, possi dependency.Possibility) (bool, string) {
 	///
 	///  XXX: DON'T IGNORE ARCHES
 	///

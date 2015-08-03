@@ -97,6 +97,9 @@ func assert(t *testing.T, expr bool) {
  */
 
 func TestResolverBasics(t *testing.T) {
+	arch, err := dependency.ParseArch("amd64")
+	isok(t, err)
+
 	candidates, err := candidate.ReadFromBinaryIndex(
 		strings.NewReader(testBinaryIndex),
 	)
@@ -106,15 +109,18 @@ func TestResolverBasics(t *testing.T) {
 	dep, err := dependency.Parse("baz")
 	isok(t, err)
 	possi := dep.GetAllPossibilities()[0]
-	assert(t, candidates.Satisfies(possi) == false)
+	assert(t, candidates.Satisfies(*arch, possi) == false)
 
 	dep, err = dependency.Parse("android-tools-fsutils")
 	isok(t, err)
 	possi = dep.GetAllPossibilities()[0]
-	assert(t, candidates.Satisfies(possi) == true)
+	assert(t, candidates.Satisfies(*arch, possi) == true)
 }
 
 func TestResolverVersion(t *testing.T) {
+	arch, err := dependency.ParseArch("amd64")
+	isok(t, err)
+
 	candidates, err := candidate.ReadFromBinaryIndex(
 		strings.NewReader(testBinaryIndex),
 	)
@@ -124,52 +130,52 @@ func TestResolverVersion(t *testing.T) {
 	dep, err := dependency.Parse("android-tools-fsutils (>= 1.0)")
 	isok(t, err)
 	possi := dep.GetAllPossibilities()[0]
-	assert(t, candidates.Satisfies(possi) == true)
+	assert(t, candidates.Satisfies(*arch, possi) == true)
 
 	dep, err = dependency.Parse("android-tools-fsutils (>= 1:1.0)")
 	isok(t, err)
 	possi = dep.GetAllPossibilities()[0]
-	assert(t, candidates.Satisfies(possi) == false)
+	assert(t, candidates.Satisfies(*arch, possi) == false)
 
 	dep, err = dependency.Parse("android-tools-fsutils (<= 1:1.0)")
 	isok(t, err)
 	possi = dep.GetAllPossibilities()[0]
-	assert(t, candidates.Satisfies(possi) == true)
+	assert(t, candidates.Satisfies(*arch, possi) == true)
 
 	dep, err = dependency.Parse("android-tools-fsutils (<= 0:0)")
 	isok(t, err)
 	possi = dep.GetAllPossibilities()[0]
-	assert(t, candidates.Satisfies(possi) == false)
+	assert(t, candidates.Satisfies(*arch, possi) == false)
 
 	dep, err = dependency.Parse("android-tools-fsutils (= 4.2.2+git20130529-5.1)")
 	isok(t, err)
 	possi = dep.GetAllPossibilities()[0]
-	assert(t, candidates.Satisfies(possi) == true)
+	assert(t, candidates.Satisfies(*arch, possi) == true)
 
 	dep, err = dependency.Parse("android-tools-fsutils (= 2.2.2+git20130529-5.1)")
 	isok(t, err)
 	possi = dep.GetAllPossibilities()[0]
-	assert(t, candidates.Satisfies(possi) == false)
+	assert(t, candidates.Satisfies(*arch, possi) == false)
 
 	dep, err = dependency.Parse("android-tools-fsutils (<< 4.2.2+git20130529-5.1)")
 	isok(t, err)
 	possi = dep.GetAllPossibilities()[0]
-	assert(t, candidates.Satisfies(possi) == false)
+	assert(t, candidates.Satisfies(*arch, possi) == false)
 
 	dep, err = dependency.Parse("android-tools-fsutils (<< 4.2.2+git20130529-6.1)")
 	isok(t, err)
 	possi = dep.GetAllPossibilities()[0]
-	assert(t, candidates.Satisfies(possi) == true)
+	assert(t, candidates.Satisfies(*arch, possi) == true)
 
 	dep, err = dependency.Parse("android-tools-fsutils (>> 4.2.2+git20130529-5.1)")
 	isok(t, err)
 	possi = dep.GetAllPossibilities()[0]
-	assert(t, candidates.Satisfies(possi) == false)
+	assert(t, candidates.Satisfies(*arch, possi) == false)
 
 	dep, err = dependency.Parse("android-tools-fsutils (>> 4.2.2+git20130529-4.1)")
 	isok(t, err)
 	possi = dep.GetAllPossibilities()[0]
-	assert(t, candidates.Satisfies(possi) == true)
+	assert(t, candidates.Satisfies(*arch, possi) == true)
 }
 
 func TestResolverDependsVersion(t *testing.T) {
