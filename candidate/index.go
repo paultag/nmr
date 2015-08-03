@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"io"
+	"strings"
 
 	"pault.ag/go/debian/control"
 	"pault.ag/go/debian/dependency"
@@ -81,32 +82,38 @@ func (can Canidates) ExplainSatisfies(possi dependency.Possibility) (bool, strin
 	// OK, so we have to play with versions now.
 	vr := *possi.Version
 	relatioNumber, _ := version.Parse(vr.Number)
+	satisfied := false
+	seenRealtions := []string{}
 
 	for _, installable := range entries {
 		q := version.Compare(installable.Version, relatioNumber)
-
-		explainMessage := fmt.Sprintf(
-			"%s %%s %s (I only see %s)",
-			possi.Name,
-			vr.Number,
-			installable.Version,
-		)
+		seenRealtions = append(seenRealtions, installable.Version.String())
 
 		switch vr.Operator {
 		case ">=":
-			return q >= 0, fmt.Sprintf(explainMessage, ">=")
+			satisfied = q >= 0
 		case "<=":
-			return q <= 0, fmt.Sprintf(explainMessage, "<=")
+			satisfied = q <= 0
 		case ">>":
-			return q > 0, fmt.Sprintf(explainMessage, ">>")
+			satisfied = q > 0
 		case "<<":
-			return q < 0, fmt.Sprintf(explainMessage, "<<")
+			satisfied = q < 0
 		case "=":
-			return q == 0, fmt.Sprintf(explainMessage, "=")
+			satisfied = q == 0
 		default:
 			return false, "Unknown operator D:" // XXX: WHAT THE SHIT
 		}
+
+		if satisfied {
+			return true, "Relation exists with a satisfied version constraint"
+		}
 	}
 
-	return false, "Unkown state"
+	return false, fmt.Sprintf(
+		"%s is version constrainted %s %s. Valid options: %s",
+		possi.Name,
+		vr.Operator,
+		vr.Number,
+		strings.Join(seenRealtions, ", "),
+	)
 }
