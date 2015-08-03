@@ -86,7 +86,7 @@ func (can Canidates) ExplainSatisfies(possi dependency.Possibility) (bool, strin
 		q := version.Compare(installable.Version, relatioNumber)
 
 		explainMessage := fmt.Sprintf(
-			"%s %%s %s (%s)",
+			"%s %%s %s (I only see %s)",
 			possi.Name,
 			vr.Number,
 			installable.Version,
