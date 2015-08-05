@@ -72,9 +72,7 @@ func SbuildCommand(
 	build.AddArgument("extra-repository",
 		fmt.Sprintf("deb %s %s main",
 			config.Global.PublicArchiveRoot,
-			distConfig.Upstream.Dist,
-		),
-	)
+			distConfig.Upstream.Dist))
 
 	cmd, err := build.BuildCommand(dscFile)
 

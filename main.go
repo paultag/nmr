@@ -10,7 +10,7 @@ import (
 
 func main() {
 	arch := "amd64"
-	dscFile := "/home/tag/tmp/repo/pool/main/d/dput-ng/dput-ng_1.9.dsc"
+	dscFile := "/home/tag/tmp/repo/pool/main/f/fbautostart/fbautostart_2.718281828-4.dsc"
 	suite := "unstable"
 	repoRoot := "/home/tag/tmp/repo/"
 	verbose := true
