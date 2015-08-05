@@ -4,9 +4,13 @@ import (
 	"crypto/md5"
 	"crypto/sha1"
 	"crypto/sha256"
-	"os"
-
 	"fmt"
+	"io/ioutil"
+	"os"
+	"os/exec"
+	"strings"
+
+	"pault.ag/go/debian/control"
 )
 
 func FakeChanges(
@@ -105,12 +109,76 @@ Files: %s
 
 // Take a DSC, and a log file, and create a fake .changes to upload
 // the log to the archive. This relies on a reprepro extension.
-func LogChangesFromDsc(logPath, dscPath, suite, arch string) string {
-	return ""
+func LogChangesFromDsc(logPath, dscPath, suite, arch string) (string, error) {
+	dsc, err := control.ParseDscFile(dscPath)
+	if err != nil {
+		return "", nil
+	}
+
+	return FakeChanges(
+		"Fri, 31 Jul 2015 12:53:50 -0400",
+		dsc.Source,
+		strings.Join(dsc.Binaries, " "),
+		arch,
+		dsc.Version.String(),
+		suite,
+		"low",
+		[]string{logPath},
+	)
 }
 
-// Take a .changes file, fake a new .changes, and append the build log to the
-// existing .changes file.
-func AppendLogToChanges(logPath, changesPath string) string {
-	return ""
+func LogChangesFromChanges(logPath, changesPath, arch string) (string, error) {
+	changes, err := control.ParseChangesFile(changesPath)
+	if err != nil {
+		return "", nil
+	}
+
+	return FakeChanges(
+		"Fri, 31 Jul 2015 12:53:50 -0400",
+		changes.Source,
+		strings.Join(changes.Binaries, " "),
+		arch,
+		changes.Version.String(),
+		changes.Distribution,
+		changes.Urgency,
+		[]string{logPath},
+	)
+}
+
+func AppendLogToChanges(logPath, changesPath, arch string) error {
+	changes, err := LogChangesFromChanges(logPath, changesPath, arch)
+	if err != nil {
+		return err
+	}
+	f, err := ioutil.TempFile("", "nmr.")
+	if err != nil {
+		return err
+	}
+	defer os.Remove(f.Name())
+	_, err = f.Write([]byte(changes))
+	if err != nil {
+		return err
+	}
+
+	changes, err = MergeChanges(changesPath, f.Name())
+	if err != nil {
+		return err
+	}
+
+	fd, err := os.Create(changesPath)
+	if err != nil {
+		return err
+	}
+	defer fd.Close()
+	_, err = fd.Write([]byte(changes))
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func MergeChanges(changes ...string) (string, error) {
+	bytes, err := exec.Command("mergechanges", changes...).Output()
+	return string(bytes), err
 }
