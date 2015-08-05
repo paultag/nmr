@@ -3,8 +3,8 @@ package repo
 import (
 	"pault.ag/go/debian/control"
 	"pault.ag/go/debian/dependency"
-	"pault.ag/go/nmr/candidate"
 	"pault.ag/go/reprepro"
+	"pault.ag/go/resolver"
 )
 
 type BuildStatus struct {
@@ -15,7 +15,7 @@ type BuildStatus struct {
 
 func ComputeBuildStatus(
 	repo reprepro.Repo,
-	index candidate.Canidates,
+	index resolver.Canidates,
 	packages []reprepro.BuildNeedingPackage,
 ) []BuildStatus {
 	ret := []BuildStatus{}

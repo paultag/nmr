@@ -7,8 +7,7 @@ import (
 	"strings"
 
 	"pault.ag/go/debian/control"
-	"pault.ag/go/nmr/archive"
-	"pault.ag/go/nmr/candidate"
+	"pault.ag/go/resolver"
 )
 
 type GlobalConfig struct {
@@ -32,8 +31,8 @@ type DistConfig struct {
 	Schroot        string
 }
 
-func (n NMRConfig) LoadIndex(dist string) (*candidate.Canidates, error) {
-	can := candidate.Canidates{}
+func (n NMRConfig) LoadIndex(dist string) (*resolver.Canidates, error) {
+	can := resolver.Canidates{}
 	dists, err := LoadDistributions(n.Basedir)
 	if err != nil {
 		return nil, err
@@ -47,7 +46,7 @@ func (n NMRConfig) LoadIndex(dist string) (*candidate.Canidates, error) {
 	}
 
 	for _, arch := range repoDistConfig.Architectures {
-		err := archive.AppendBinaryIndex(
+		err := resolver.AppendBinaryIndex(
 			&can,
 			n.Global.PublicArchiveRoot,
 			dist,
@@ -60,7 +59,7 @@ func (n NMRConfig) LoadIndex(dist string) (*candidate.Canidates, error) {
 	}
 
 	for _, arch := range repoDistConfig.Architectures {
-		err := archive.AppendBinaryIndex(
+		err := resolver.AppendBinaryIndex(
 			&can,
 			d.Upstream.Root,
 			d.Upstream.Dist,
