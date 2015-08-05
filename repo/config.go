@@ -13,7 +13,8 @@ import (
 type GlobalConfig struct {
 	control.Paragraph
 
-	PublicArchiveRoot string
+	PublicArchiveRoot  string
+	ArchIndepBuildArch string
 }
 
 type UpstreamLocation struct {
@@ -29,6 +30,7 @@ type DistConfig struct {
 	UpstreamArches []string
 	Arches         []string
 	Schroot        string
+	Incoming       string
 }
 
 func (n NMRConfig) LoadIndex(dist string) (*resolver.Candidates, error) {
@@ -107,7 +109,8 @@ func LoadConfig(basedir string) (*NMRConfig, error) {
 	}
 
 	ret.Global = GlobalConfig{
-		PublicArchiveRoot: global.Values["PublicArchiveRoot"],
+		PublicArchiveRoot:  global.Values["PublicArchiveRoot"],
+		ArchIndepBuildArch: global.Values["ArchIndepBuildArch"],
 	}
 
 	for {
@@ -124,6 +127,7 @@ func LoadConfig(basedir string) (*NMRConfig, error) {
 			Names:          strings.Split(para.Values["Name"], " "),
 			UpstreamArches: strings.Split(para.Values["UpstreamArches"], " "),
 			Arches:         strings.Split(para.Values["Arches"], " "),
+			Incoming:       para.Values["Incoming"],
 			Upstream: UpstreamLocation{
 				Root: upstream[0],
 				Dist: upstream[1], // FIXME
