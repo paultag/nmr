@@ -18,6 +18,7 @@ type Distribution struct {
 	Architectures []string
 	Tracking      []string
 	Source        bool
+	SignWith      string
 }
 
 type Distributions struct {
@@ -69,6 +70,7 @@ func LoadDistributions(basedir string) (*Distributions, error) {
 			Architectures: arches,
 			Source:        source,
 			Tracking:      strings.Split(para.Values["Tracking"], " "),
+			SignWith:      para.Values["SignWith"],
 		})
 	}
 
