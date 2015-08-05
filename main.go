@@ -10,7 +10,7 @@ import (
 
 func main() {
 	arch := "amd64"
-	dscFile := "/home/tag/tmp/repo/pool/main/f/fbautostart/fbautostart_2.718281828-4.dsc"
+	dscFile := "/home/tag/tmp/repo/pool/main/d/dput-ng/dput-ng_1.9.dsc"
 	suite := "unstable"
 	repoRoot := "/home/tag/tmp/repo/"
 	verbose := true
@@ -34,12 +34,12 @@ func main() {
 		░█░█░█▀█░█▀▄░█▀▀░█░█░░░█░█░█░█░█░░░█▀▀░░░█▀▄░█▀█░░█░
 		░▀░▀░▀░▀░▀░▀░▀▀▀░▀▀░░░░▀░▀░▀▀▀░▀▀▀░▀▀▀░░░▀░▀░▀░▀░░▀░
 
-		Source: %s
-		Version: %s
-		Arch: %s
-		Suite: %s
-		Chroot: %s
-		Repo: %s
+				Source:  %s
+				Version: %s
+				Arch:    %s
+				Suite:   %s
+				Chroot:  %s
+				Repo:    %s
 
 `, source, version, arch, suite, suite, repoRoot)
 
@@ -71,6 +71,12 @@ func main() {
 		}
 	} else {
 		helpers.AppendLogToChanges(logPath, changesFile, arch)
+	}
+
+	if IsArchAllArch(repoRoot, arch) && dsc.HasArchAll() {
+		archAllLogPath := helpers.Filename(source, version, "all", "changes")
+		Copy(logPath, archAllLogPath)
+		helpers.AppendLogToChanges(archAllLogPath, changesFile, "all")
 	}
 
 	changes, err := control.ParseChangesFile(changesFile)

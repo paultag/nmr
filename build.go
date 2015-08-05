@@ -10,6 +10,15 @@ import (
 	"pault.ag/go/sbuild"
 )
 
+func IsArchAllArch(repoRoot, arch string) bool {
+	repreproRepo := reprepro.NewRepo(repoRoot)
+	config, err := repo.LoadConfig(repreproRepo.Basedir)
+	if err != nil {
+		return false
+	}
+	return arch == config.Global.ArchIndepBuildArch
+}
+
 func GetIncoming(repoRoot, dist string) (string, error) {
 	repreproRepo := reprepro.NewRepo(repoRoot)
 	config, err := repo.LoadConfig(repreproRepo.Basedir)
