@@ -31,8 +31,8 @@ type DistConfig struct {
 	Schroot        string
 }
 
-func (n NMRConfig) LoadIndex(dist string) (*resolver.Canidates, error) {
-	can := resolver.Canidates{}
+func (n NMRConfig) LoadIndex(dist string) (*resolver.Candidates, error) {
+	can := resolver.Candidates{}
 	dists, err := LoadDistributions(n.Basedir)
 	if err != nil {
 		return nil, err

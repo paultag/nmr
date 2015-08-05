@@ -15,7 +15,7 @@ type BuildStatus struct {
 
 func ComputeBuildStatus(
 	repo reprepro.Repo,
-	index resolver.Canidates,
+	index resolver.Candidates,
 	packages []reprepro.BuildNeedingPackage,
 ) []BuildStatus {
 	ret := []BuildStatus{}
