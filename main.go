@@ -4,7 +4,8 @@ import (
 	"fmt"
 	"os"
 
-	// "pault.ag/go/nmr/helpers"
+	"pault.ag/go/debian/control"
+	"pault.ag/go/nmr/helpers"
 	"pault.ag/go/nmr/repo"
 	"pault.ag/go/reprepro"
 	"pault.ag/go/sbuild"
@@ -19,6 +20,13 @@ func main() {
 
 
 `)
+	arch := "amd64"
+	dscFile := "/home/tag/tmp/repo/pool/main/f/fbautostart/fbautostart_2.718281828-3.dsc"
+	dsc, err := control.ParseDscFile(dscFile)
+	if err != nil {
+		panic(err)
+	}
+
 	repreproRepo := reprepro.NewRepo(os.Args[1])
 	config, err := repo.LoadConfig(repreproRepo.Basedir)
 	if err != nil {
@@ -55,9 +63,7 @@ func main() {
 		),
 	)
 
-	dsc := "/home/tag/tmp/repo/pool/main/f/fbautostart/fbautostart_2.718281828-3.dsc"
-
-	cmd, err := build.BuildCommand(dsc)
+	cmd, err := build.BuildCommand(dscFile)
 	if err != nil {
 		panic(err)
 	}
@@ -66,11 +72,32 @@ func main() {
 	cmd.Stderr = os.Stderr
 
 	err = cmd.Run()
-	ftbfs := err == nil
+	ftbfs := err != nil
 
-	// if ftbfs {
-	// 	helpers.LogChangesFromDsc()
-	// } else {
+	// control file paths have no epoch.
+	//
+	// ... because that makes sense.
+	var logVersion string
+	if dsc.Version.IsNative() {
+		logVersion = fmt.Sprintf("%d", dsc.Version.Version)
+	} else {
+		logVersion = fmt.Sprintf("%s-%s", dsc.Version.Version, dsc.Version.Revision)
+	}
+
+	logPath := fmt.Sprintf(
+		"%s_%s_%s.build",
+		dsc.Source,
+		logVersion,
+		arch,
+	)
+
+	if ftbfs {
+		changes, err := helpers.LogChangesFromDsc(logPath, dscFile, suite, arch)
+		if err != nil {
+			panic(err)
+		}
+		fmt.Printf("%s\n", changes)
+	} // else {
 	// 	helpers.AppendLogToChanges()
 	// }
 	//
