@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"pault.ag/go/debian/control"
+	"pault.ag/go/fancytext"
 	"pault.ag/go/nmr/helpers"
 )
 
@@ -12,6 +13,19 @@ func main() {
 	arch := "amd64"
 	suite := "unstable"
 	repoRoot := "/home/tag/tmp/repo/"
+
+	fmt.Printf(`
+
+		░█▀█░█▀█░█░█░█▀▀░█▀▄░░░█▄█░█▀█░█░░░█▀▀░░░█▀▄░█▀█░▀█▀
+		░█░█░█▀█░█▀▄░█▀▀░█░█░░░█░█░█░█░█░░░█▀▀░░░█▀▄░█▀█░░█░
+		░▀░▀░▀░▀░▀░▀░▀▀▀░▀▀░░░░▀░▀░▀▀▀░▀▀▀░▀▀▀░░░▀░▀░▀░▀░░▀░
+
+				Arch:    %s
+				Suite:   %s
+				Chroot:  %s
+				Repo:    %s
+
+`, arch, suite, suite, repoRoot)
 
 	fmt.Printf("Loading package indexes and computing build needed...\n")
 
@@ -22,6 +36,7 @@ func main() {
 	}
 
 	fmt.Printf("  %d packages need build\n", len(needsBuild))
+	fmt.Printf("\n\n")
 
 	for _, pkg := range needsBuild {
 		dscPath := repoRoot + "/" + pkg.Package.Location
@@ -36,6 +51,9 @@ func main() {
 }
 
 func BuildPackage(dscFile, arch, suite, repoRoot string, verbose bool) {
+	done := fancytext.FormatSpinner(fmt.Sprintf("%%s  -  building %s", dscFile))
+	defer done()
+
 	incomingLocation, err := GetIncoming(repoRoot, suite)
 	if err != nil {
 		panic(err)
@@ -48,21 +66,6 @@ func BuildPackage(dscFile, arch, suite, repoRoot string, verbose bool) {
 
 	source := dsc.Source
 	version := dsc.Version
-
-	fmt.Printf(`
-
-		░█▀█░█▀█░█░█░█▀▀░█▀▄░░░█▄█░█▀█░█░░░█▀▀░░░█▀▄░█▀█░▀█▀
-		░█░█░█▀█░█▀▄░█▀▀░█░█░░░█░█░█░█░█░░░█▀▀░░░█▀▄░█▀█░░█░
-		░▀░▀░▀░▀░▀░▀░▀▀▀░▀▀░░░░▀░▀░▀▀▀░▀▀▀░▀▀▀░░░▀░▀░▀░▀░░▀░
-
-				Source:  %s
-				Version: %s
-				Arch:    %s
-				Suite:   %s
-				Chroot:  %s
-				Repo:    %s
-
-`, source, version, arch, suite, suite, repoRoot)
 
 	cmd, err := SbuildCommand(suite, suite, arch, dscFile, repoRoot, verbose)
 	if err != nil {
