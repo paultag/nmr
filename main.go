@@ -75,7 +75,6 @@ func BuildPackage(dscFile, arch, suite, repoRoot string, verbose bool) {
 	err = cmd.Run()
 	ftbfs := err != nil
 
-	fmt.Printf("%s %s\n", err, ftbfs)
 	changesFile := helpers.Filename(source, version, arch, "changes")
 	logPath := helpers.Filename(source, version, arch, "build")
 
