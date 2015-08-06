@@ -33,6 +33,7 @@ func main() {
 	if IsArchAllArch(repoRoot, arch) {
 		fmt.Printf("Also getting needs build packages for all\n")
 		needsBuild = append(needsBuild, GetBuildNeeding(repoRoot, suite, "all")...)
+		// dedupe list D:
 	}
 
 	fmt.Printf("  %d packages need build\n", len(needsBuild))
