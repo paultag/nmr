@@ -44,6 +44,7 @@ func main() {
 		if pkg.Buildable {
 			fmt.Printf("Building: %s", dscPath)
 			BuildPackage(dscPath, arch, suite, repoRoot, false)
+			fmt.Printf("      built %s!", dscPath)
 		} else {
 			fmt.Printf("Package %s unbuildable currently", pkg.Package.Location)
 		}
