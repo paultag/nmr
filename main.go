@@ -91,6 +91,8 @@ func BuildPackage(dscFile, arch, suite, repoRoot string, verbose bool) {
 	logPath := helpers.Filename(source, version, arch, "build")
 
 	if ftbfs {
+		fmt.Printf(" FTBFS!\n")
+		return
 		changes, err := helpers.LogChangesFromDsc(logPath, dscFile, suite, arch)
 		if err != nil {
 			panic(err)
