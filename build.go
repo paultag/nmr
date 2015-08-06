@@ -10,6 +10,24 @@ import (
 	"pault.ag/go/sbuild"
 )
 
+func GetBuildNeeding(repoRoot, suite, arch string) []repo.BuildStatus {
+	repreproRepo := reprepro.NewRepo(repoRoot)
+
+	config, err := repo.LoadConfig(repreproRepo.Basedir)
+	i, err := config.LoadIndex(suite)
+
+	if err != nil {
+		return []repo.BuildStatus{}
+	}
+
+	needsBuild, err := repreproRepo.BuildNeeding(suite, arch)
+	if err != nil {
+		return []repo.BuildStatus{}
+	}
+
+	return repo.ComputeBuildStatus(*repreproRepo, *i, needsBuild)
+}
+
 func IsArchAllArch(repoRoot, arch string) bool {
 	repreproRepo := reprepro.NewRepo(repoRoot)
 	config, err := repo.LoadConfig(repreproRepo.Basedir)

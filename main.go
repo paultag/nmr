@@ -10,11 +10,32 @@ import (
 
 func main() {
 	arch := "amd64"
-	dscFile := "/home/tag/tmp/repo/pool/main/d/dput-ng/dput-ng_1.9.dsc"
 	suite := "unstable"
 	repoRoot := "/home/tag/tmp/repo/"
-	verbose := true
 
+	fmt.Printf("Loading package indexes and computing build needed...\n")
+
+	needsBuild := GetBuildNeeding(repoRoot, suite, arch)
+	if IsArchAllArch(repoRoot, arch) {
+		fmt.Printf("Also getting needs build packages for all\n")
+		needsBuild = append(needsBuild, GetBuildNeeding(repoRoot, suite, "all")...)
+	}
+
+	fmt.Printf("  %d packages need build\n", len(needsBuild))
+
+	for _, pkg := range needsBuild {
+		dscPath := repoRoot + "/" + pkg.Package.Location
+
+		if pkg.Buildable {
+			fmt.Printf("Building: %s", dscPath)
+			BuildPackage(dscPath, arch, suite, repoRoot, false)
+		} else {
+			fmt.Printf("Package %s unbuildable currently", pkg.Package.Location)
+		}
+	}
+}
+
+func BuildPackage(dscFile, arch, suite, repoRoot string, verbose bool) {
 	incomingLocation, err := GetIncoming(repoRoot, suite)
 	if err != nil {
 		panic(err)
@@ -74,7 +95,7 @@ func main() {
 	}
 
 	if IsArchAllArch(repoRoot, arch) && dsc.HasArchAll() {
-		archAllLogPath := helpers.Filename(source, version, "all", "changes")
+		archAllLogPath := helpers.Filename(source, version, "all", "build")
 		Copy(logPath, archAllLogPath)
 		helpers.AppendLogToChanges(archAllLogPath, changesFile, "all")
 	}
