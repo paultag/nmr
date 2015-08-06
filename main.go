@@ -7,6 +7,7 @@ import (
 	"pault.ag/go/debian/control"
 	"pault.ag/go/fancytext"
 	"pault.ag/go/nmr/helpers"
+	"pault.ag/go/nmr/repo"
 )
 
 func main() {
@@ -29,11 +30,20 @@ func main() {
 
 	fmt.Printf("Loading package indexes and computing build needed...\n")
 
-	needsBuild := GetBuildNeeding(repoRoot, suite, arch)
+	needsBuild := map[string]repo.BuildStatus{}
+	var needsBuildList = []repo.BuildStatus{}
+
 	if IsArchAllArch(repoRoot, arch) {
-		fmt.Printf("Also getting needs build packages for all\n")
-		needsBuild = append(needsBuild, GetBuildNeeding(repoRoot, suite, "all")...)
-		// dedupe list D:
+		needsBuildList = append(
+			GetBuildNeeding(repoRoot, suite, "all"),
+			GetBuildNeeding(repoRoot, suite, arch)...,
+		)
+	} else {
+		needsBuildList = append(GetBuildNeeding(repoRoot, suite, arch))
+	}
+
+	for _, entry := range needsBuildList {
+		needsBuild[entry.Package.Location] = entry
 	}
 
 	fmt.Printf("  %d packages need build\n", len(needsBuild))
@@ -43,11 +53,11 @@ func main() {
 		dscPath := repoRoot + "/" + pkg.Package.Location
 
 		if pkg.Buildable {
-			fmt.Printf("Building: %s", dscPath)
 			BuildPackage(dscPath, arch, suite, repoRoot, false)
 			fmt.Printf("      built %s!\n", dscPath)
 		} else {
-			fmt.Printf("Package %s unbuildable currently", pkg.Package.Location)
+			fmt.Printf("Package %s unbuildable currently\n", pkg.Package.Location)
+			fmt.Printf("      %s\n", pkg.Why)
 		}
 	}
 }
