@@ -38,21 +38,23 @@ func main() {
 		panic(err)
 	}
 
-	BuildPackage(dsc.Filename, arch, log.Suite, repoRoot, true)
+	ftbfs, err := BuildPackage(dsc.Filename, arch, log.Suite, repoRoot, true)
+	fmt.Printf("FTBFS: %s", ftbfs)
+	fmt.Printf("Error: %s", err)
 }
 
-func BuildPackage(dscFile, arch, suite, repoRoot string, verbose bool) {
+func BuildPackage(dscFile, arch, suite, repoRoot string, verbose bool) (bool, error) {
 	// done := fancytext.FormatSpinner(fmt.Sprintf("%%s  -  building %s", dscFile))
 	// defer done()
 
 	incomingLocation, err := GetIncoming(repoRoot, suite)
 	if err != nil {
-		panic(err)
+		return false, err
 	}
 
 	dsc, err := control.ParseDscFile(dscFile)
 	if err != nil {
-		panic(err)
+		return false, err
 	}
 
 	source := dsc.Source
@@ -60,7 +62,7 @@ func BuildPackage(dscFile, arch, suite, repoRoot string, verbose bool) {
 
 	cmd, err := SbuildCommand(suite, suite, arch, dscFile, repoRoot, verbose)
 	if err != nil {
-		panic(err)
+		return false, err
 	}
 
 	err = cmd.Run()
@@ -70,21 +72,23 @@ func BuildPackage(dscFile, arch, suite, repoRoot string, verbose bool) {
 	logPath := helpers.Filename(source, version, arch, "build")
 
 	if ftbfs {
-		fmt.Printf(" FTBFS!\n")
-		return
-		changes, err := helpers.LogChangesFromDsc(logPath, dscFile, suite, arch)
-		if err != nil {
-			panic(err)
-		}
-		fd, err := os.Create(changesFile)
-		if err != nil {
-			panic(err)
-		}
-		defer fd.Close()
-		_, err = fd.Write([]byte(changes))
-		if err != nil {
-			panic(err)
-		}
+		return true, nil
+
+		// fmt.Printf(" FTBFS!\n")
+		// return
+		// changes, err := helpers.LogChangesFromDsc(logPath, dscFile, suite, arch)
+		// if err != nil {
+		// 	panic(err)
+		// }
+		// fd, err := os.Create(changesFile)
+		// if err != nil {
+		// 	panic(err)
+		// }
+		// defer fd.Close()
+		// _, err = fd.Write([]byte(changes))
+		// if err != nil {
+		// 	panic(err)
+		// }
 	} else {
 		helpers.AppendLogToChanges(logPath, changesFile, arch)
 	}
@@ -97,11 +101,13 @@ func BuildPackage(dscFile, arch, suite, repoRoot string, verbose bool) {
 
 	changes, err := control.ParseChangesFile(changesFile)
 	if err != nil {
-		panic(err)
+		return ftbfs, err
 	}
 
 	err = changes.Move(incomingLocation)
 	if err != nil {
-		panic(err)
+		return ftbfs, err
 	}
+
+	return ftbfs, nil
 }
