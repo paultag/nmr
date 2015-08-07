@@ -13,6 +13,12 @@ func main() {
 	arch := "amd64"
 	repoRoot := "/home/tag/tmp/repo/"
 
+	complete, err := Tempdir()
+	if err != nil {
+		panic(err)
+	}
+	defer complete()
+
 	params := os.Args[1:]
 	log, err := ParseLine(repoRoot, params)
 	if err != nil {
