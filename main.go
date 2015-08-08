@@ -10,16 +10,10 @@ import (
 )
 
 func main() {
-	arch := "amd64"
-	repoRoot := "/home/tag/tmp/repo/"
+	arch := os.Args[1]
+	repoRoot := os.Args[2]
 
-	complete, err := Tempdir()
-	if err != nil {
-		panic(err)
-	}
-	defer complete()
-
-	params := os.Args[1:]
+	params := os.Args[3:]
 	log, err := ParseLine(repoRoot, params)
 	if err != nil {
 		panic(err)
@@ -37,6 +31,12 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+
+	complete, err := Tempdir()
+	if err != nil {
+		panic(err)
+	}
+	defer complete()
 
 	ftbfs, err := BuildPackage(dsc.Filename, arch, log.Suite, repoRoot, true)
 	fmt.Printf("FTBFS: %s", ftbfs)
