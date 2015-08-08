@@ -104,7 +104,7 @@ func BuildPackage(dscFile, arch, suite, repoRoot string, verbose bool) (bool, er
 		return ftbfs, err
 	}
 
-	err = changes.Move(incomingLocation)
+	err = changes.Copy(incomingLocation)
 	if err != nil {
 		return ftbfs, err
 	}
