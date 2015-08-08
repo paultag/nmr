@@ -7,21 +7,24 @@ import (
 	"pault.ag/go/debian/control"
 	// "pault.ag/go/fancytext"
 	"pault.ag/go/nmr/helpers"
+	"pault.ag/go/reprepro"
 )
 
 func main() {
 	arch := os.Args[1]
 	repoRoot := os.Args[2]
-
 	params := os.Args[3:]
-	log, err := ParseLine(repoRoot, params)
+
+	repreproRepo := reprepro.NewRepo(repoRoot)
+	log, err := repreproRepo.ParseLogEntry(params)
 	if err != nil {
 		panic(err)
 	}
 
 	arches := log.Changes.Architectures
 	// insane hack here. ignore me.
-	if log.Action != "accepted" && len(arches) == 1 && arches[0].CPU == "source" {
+	fmt.Printf("Got: %s %s\n", log.Action, log.Changes.Architectures)
+	if log.Action != "accepted" || arches[0].CPU != "source" || len(arches) != 1 {
 		fmt.Printf("Ignoring: %s %s\n", log.Action, log.Changes.Architectures)
 		return
 	}
